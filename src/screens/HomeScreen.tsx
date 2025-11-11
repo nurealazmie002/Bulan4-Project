@@ -1,31 +1,14 @@
 import {
   Text, View, FlatList, StyleSheet, SafeAreaView, Alert, Pressable, ImageBackground, 
 } from 'react-native';
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useNavigation } from "@react-navigation/native";
 import { Product } from '../types';
 import { initialProducts, HEADER_BG_URI } from '../data';
 import AddProductModal from '../components/AddProductModal';
 import ProductCard from '../components/ProductCard';
 import { useState } from 'react';
 
-type RootStackParamList = {
-        Home: undefined;
-        Profile: undefined;
-    };
-    
-    type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
-    
-export function HomeScreen() {
-    const navigation = useNavigation<HomeScreenNavigationProp>();
-    return (
-        <View>
-            <Text>Home Screen</Text>
-        </View>
-    );
-}
 
-export default function App() {
+export default function HomeScreen() {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
 
