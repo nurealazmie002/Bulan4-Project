@@ -31,7 +31,7 @@ export default function App() {
 
   const handleAddProduct = (p: Product) => {
     setProducts((prev) => [p, ...prev]);
-    Alert.alert('Sukses', 'Produk berhasil ditambahkan.');
+    Alert.alert('Sukses', 'Produk anda berhasil ditambahkan.');
   };
 
   const renderItem = ({ item }: { item: Product }) => <ProductCard item={item} />;

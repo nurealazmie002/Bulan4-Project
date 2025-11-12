@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
-import { Product } from '../types'; // Impor dari src/types.ts
+import { Product } from '../types'; 
 
 interface ProductCardProps {
   item: Product;
