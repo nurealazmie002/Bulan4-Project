@@ -1,14 +1,9 @@
 export type RootStackParamList = {
   Home: undefined;
   Profile: undefined;
-  Tab1: undefined;
-  Tab2: undefined;
   AppContent: undefined;
-  HomeTabs: undefined;
   Beranda: undefined;
   Produk: undefined;
-  Statistik: undefined;
-  Tentang: undefined;
 };
 
 export type RootDrawerParamList = {
@@ -21,7 +16,7 @@ export interface Product {
   price: number;
   imageUrl: string;
   description: string;
-  category?: string; 
+  category: string; 
 }
 
 export interface NewProductInput {
@@ -29,7 +24,7 @@ export interface NewProductInput {
   price: string;
   imageUrl: string;
   description: string;
-  category?: string; 
+  category: string;
 }
 
 export interface ValidationErrors {

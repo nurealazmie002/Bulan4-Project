@@ -14,7 +14,7 @@ export default function TentangScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>👨‍💻 Developer</Text>
+        <Text style={styles.sectionTitle}>Tentang Developer</Text>
         <View style={styles.developerCard}>
           <Image
             source={{ uri: 'https://i.pinimg.com/736x/89/3b/8e/893b8e08cca8bbecb2f6e8693b80d72c.jpg' }}
@@ -28,7 +28,6 @@ export default function TentangScreen() {
         </View>
       </View>
 
-      {/* Tech Stack */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}> Teknologi yang Digunakan</Text>
         
@@ -63,21 +62,17 @@ export default function TentangScreen() {
         </View>
       </View>
 
-      {/* Features List */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Fitur Aplikasi</Text>
         <Text style={styles.featureText}>✅ Manajemen produk (CRUD)</Text>
         <Text style={styles.featureText}>✅ Filter produk berdasarkan kategori</Text>
-        <Text style={styles.featureText}>✅ Statistik penjualan</Text>
         <Text style={styles.featureText}>✅ Drawer navigation</Text>
         <Text style={styles.featureText}>✅ Material top tabs</Text>
-        <Text style={styles.featureText}>✅ Bottom tabs navigation</Text>
         <Text style={styles.featureText}>✅ Responsive design</Text>
       </View>
 
-      {/* Contact */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>📬 Kontak</Text>
+        <Text style={styles.sectionTitle}>Kontak</Text>
         <TouchableOpacity style={styles.contactItem}>
           <FontAwesome name="envelope" size={20} color="#FF7043" />
           <Text style={styles.contactText}>nurealazmie002@email.com</Text>

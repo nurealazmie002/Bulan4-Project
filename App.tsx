@@ -6,7 +6,7 @@ import React from 'react';
 import MainStack from './src/navigation/MainStack';
 import CustomDrawer from './src/navigation/CustomDrawer';
 import FontAwesome from '@react-native-vector-icons/fontawesome';
-
+import LoginScreen from './src/screens/LoginScreen';
 enableScreens();
 
 const Drawer = createDrawerNavigator();
@@ -35,6 +35,8 @@ export default function App() {
               ),
             }}
           />
+          <Drawer.Screen name="Login" component={LoginScreen} options={{ swipeEnabled: false }} />
+          <Drawer.Screen name="beranda" component={MainStack} />
         </Drawer.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

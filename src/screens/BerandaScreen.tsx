@@ -1,8 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import FontAwesome from '@react-native-vector-icons/fontawesome';
 
 export default function BerandaScreen() {
+  const navigation = useNavigation();
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.welcomeCard}>
@@ -10,20 +13,52 @@ export default function BerandaScreen() {
           source={{ uri: 'https://i.pinimg.com/736x/89/3b/8e/893b8e08cca8bbecb2f6e8693b80d72c.jpg' }}
           style={styles.avatar}
         />
-        <Text style={styles.welcomeText}>Selamat Datang! </Text>
-        <Text style={styles.userName}>Naufal Hibatullah</Text>
-        <Text style={styles.userRole}>Programmer & Motivator</Text>
+        <Text style={styles.welcomeText}>Selamat Datang!</Text>
+        <Text style={styles.userName}>Mini E-Commerce App</Text>
+        <Text style={styles.userRole}>Kelola produk Anda dengan mudah</Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>⚡ Aksi Cepat</Text>
+        
+        <TouchableOpacity 
+          style={styles.actionCard}
+          onPress={() => navigation.navigate('Produk' as never)}
+        >
+          <View style={[styles.actionIcon, { backgroundColor: '#FFE0B2' }]}>
+            <FontAwesome name="shopping-bag" size={28} color="#FF7043" />
+          </View>
+          <View style={styles.actionContent}>
+            <Text style={styles.actionTitle}>Lihat Produk</Text>
+            <Text style={styles.actionDesc}>Jelajahi katalog produk lengkap</Text>
+          </View>
+          <FontAwesome name="chevron-right" size={16} color="#999" />
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.actionCard}
+          onPress={() => navigation.navigate('Profile' as never)}
+        >
+          <View style={[styles.actionIcon, { backgroundColor: '#E1F5FE' }]}>
+            <FontAwesome name="user" size={28} color="#2196F3" />
+          </View>
+          <View style={styles.actionContent}>
+            <Text style={styles.actionTitle}>Profil Saya</Text>
+            <Text style={styles.actionDesc}>Lihat dan edit profil Anda</Text>
+          </View>
+          <FontAwesome name="chevron-right" size={16} color="#999" />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.infoSection}>
-        <Text style={styles.sectionTitle}>Tentang Aplikasi</Text>
+        <Text style={styles.sectionTitle}>📱 Tentang Aplikasi</Text>
         <Text style={styles.infoText}>
           Mini E-Commerce adalah aplikasi manajemen produk yang membantu Anda mengelola inventaris dengan mudah dan cepat.
         </Text>
       </View>
 
       <View style={styles.featuresSection}>
-        <Text style={styles.sectionTitle}>Fitur Utama</Text>
+        <Text style={styles.sectionTitle}>✨ Fitur Utama</Text>
         
         <View style={styles.featureCard}>
           <View style={styles.featureIcon}>
@@ -37,20 +72,10 @@ export default function BerandaScreen() {
 
         <View style={styles.featureCard}>
           <View style={styles.featureIcon}>
-            <FontAwesome name="bar-chart" size={24} color="#FF7043" />
+            <FontAwesome name="filter" size={24} color="#FF7043" />
           </View>
           <View style={styles.featureContent}>
-            <Text style={styles.featureTitle}>Statistik Lengkap</Text>
-            <Text style={styles.featureDesc}>Lihat ringkasan dan analisis penjualan</Text>
-          </View>
-        </View>
-
-        <View style={styles.featureCard}>
-          <View style={styles.featureIcon}>
-            <FontAwesome name="tags" size={24} color="#FF7043" />
-          </View>
-          <View style={styles.featureContent}>
-            <Text style={styles.featureTitle}>Kategori Produk</Text>
+            <Text style={styles.featureTitle}>Filter Kategori</Text>
             <Text style={styles.featureDesc}>Organisir produk berdasarkan kategori</Text>
           </View>
         </View>
@@ -67,12 +92,12 @@ export default function BerandaScreen() {
       </View>
 
       <View style={styles.statsSection}>
-        <Text style={styles.sectionTitle}>Ringkasan Cepat</Text>
+        <Text style={styles.sectionTitle}>📊 Ringkasan</Text>
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
-            <FontAwesome name="cart-plus" size={28} color="#4CAF50" />
+            <FontAwesome name="cube" size={28} color="#4CAF50" />
             <Text style={styles.statNumber}>10</Text>
-            <Text style={styles.statLabel}>Total Produk</Text>
+            <Text style={styles.statLabel}>Produk</Text>
           </View>
           <View style={styles.statCard}>
             <FontAwesome name="list" size={28} color="#2196F3" />
@@ -80,13 +105,6 @@ export default function BerandaScreen() {
             <Text style={styles.statLabel}>Kategori</Text>
           </View>
         </View>
-      </View>
-
-      <View style={styles.ctaSection}>
-        <Text style={styles.ctaTitle}>Siap Memulai?</Text>
-        <Text style={styles.ctaText}>
-          Kunjungi tab "Produk" untuk mulai mengelola inventaris Anda!
-        </Text>
       </View>
     </ScrollView>
   );
@@ -137,6 +155,49 @@ const styles = StyleSheet.create({
     color: '#FFE0B2',
     marginTop: 4,
   },
+  section: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 12,
+  },
+  actionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  actionIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  actionContent: {
+    flex: 1,
+  },
+  actionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 4,
+  },
+  actionDesc: {
+    fontSize: 13,
+    color: '#666',
+  },
   infoSection: {
     backgroundColor: '#fff',
     borderRadius: 15,
@@ -147,12 +208,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 12,
   },
   infoText: {
     fontSize: 15,
@@ -227,22 +282,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#666',
     marginTop: 5,
-  },
-  ctaSection: {
-    backgroundColor: '#2196F3',
-    borderRadius: 15,
-    padding: 25,
-    alignItems: 'center',
-  },
-  ctaTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 8,
-  },
-  ctaText: {
-    fontSize: 14,
-    color: '#E3F2FD',
-    textAlign: 'center',
   },
 });
