@@ -7,38 +7,66 @@ import MainStack from './src/navigation/MainStack';
 import CustomDrawer from './src/navigation/CustomDrawer';
 import FontAwesome from '@react-native-vector-icons/fontawesome';
 import LoginScreen from './src/screens/LoginScreen';
+import LoginAPIScreen from './src/screens/LoginAPIScreen';
+import { UserProvider } from './src/context/UserContext';
+import { CartProvider } from './src/context/CartContext';
+
 enableScreens();
 
 const Drawer = createDrawerNavigator();
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <Drawer.Navigator
-          drawerContent={(props: DrawerContentComponentProps) => <CustomDrawer {...props} />}
-          screenOptions={{
-            headerShown: false,
-            swipeEnabled: true,
-            drawerStyle: {
-              width: 280,
-            },
-          }}
-        >
-          <Drawer.Screen
-            name="Main"
-            component={MainStack}
-            options={{
-              title: 'Halaman Utama',
-              drawerIcon: ({ color, size }) => (
-                <FontAwesome name="comments" size={size} color={color} />
-              ),
+    <UserProvider>
+      <CartProvider>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <Drawer.Navigator
+            drawerContent={(props: DrawerContentComponentProps) => <CustomDrawer {...props} />}
+            screenOptions={{
+              headerShown: false,
+              swipeEnabled: true,
+              drawerStyle: {
+                width: 280,
+              },
             }}
-          />
-          <Drawer.Screen name="Login" component={LoginScreen} options={{ swipeEnabled: false }} />
-          <Drawer.Screen name="beranda" component={MainStack} />
-        </Drawer.Navigator>
-      </NavigationContainer>
-    </SafeAreaProvider>
+          >
+            <Drawer.Screen
+              name="LoginAPI"
+              component={LoginAPIScreen}
+              options={{
+                title: 'Login API',
+                swipeEnabled: false,
+                drawerIcon: ({ color, size }) => (
+                  <FontAwesome name="sign-in" size={size} color={color} />
+                ),
+              }}
+            />
+            <Drawer.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{
+                title: 'Login Context',
+                swipeEnabled: false,
+                drawerIcon: ({ color, size }) => (
+                  <FontAwesome name="user" size={size} color={color} />
+                ),
+              }}
+            />
+            <Drawer.Screen
+              name="Main"
+              component={MainStack}
+              options={{
+                title: 'Halaman Utama',
+                drawerIcon: ({ color, size }) => (
+                  <FontAwesome name="home" size={size} color={color} />
+                ),
+              }}
+            />
+          </Drawer.Navigator>
+        </NavigationContainer>
+      </SafeAreaProvider>
+      </CartProvider>
+    </UserProvider>
   );
 }
