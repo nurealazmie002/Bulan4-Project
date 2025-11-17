@@ -1,10 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, ActivityIndicator, TouchableOpacity, Alert, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+  TouchableOpacity,
+  Alert,
+  Dimensions,
+} from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
+import { useNavigation } from '@react-navigation/native';
 import apiClient from '../api/apiClient';
 import { useCart } from '../context/CartContext';
+import { retryRequest } from '../utils/retryRequest';
 
 export default function ProductListAPIScreen() {
+  const navigation = useNavigation();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -12,6 +25,7 @@ export default function ProductListAPIScreen() {
   const [numColumns, setNumColumns] = useState(2);
   const { addToCart } = useCart();
 
+  // Responsive layout
   useEffect(() => {
     const updateLayout = () => {
       const { width, height } = Dimensions.get('window');
@@ -24,6 +38,7 @@ export default function ProductListAPIScreen() {
     return () => subscription?.remove();
   }, []);
 
+  // Fetch products dengan retry logic
   useEffect(() => {
     const abortController = new AbortController();
 
@@ -38,10 +53,14 @@ export default function ProductListAPIScreen() {
           return;
         }
 
-        const response = await apiClient.get('/products', {
-          signal: abortController.signal,
-          params: { limit: 20 },
-        });
+        const response = await retryRequest(
+          () =>
+            apiClient.get('/products', {
+              signal: abortController.signal,
+              params: { limit: 20 },
+            }),
+          3
+        );
 
         setProducts(response.data.products);
         setError('');
@@ -51,7 +70,8 @@ export default function ProductListAPIScreen() {
         } else if (err.code === 'ECONNABORTED') {
           setError('Request timeout (>7 detik)');
         } else {
-          setError('Gagal memuat produk');
+          console.log('🔴 Error setelah 3x retry:', err.message);
+          setError('Gagal memuat produk setelah 3x percobaan');
         }
       } finally {
         setLoading(false);
@@ -67,14 +87,57 @@ export default function ProductListAPIScreen() {
 
   const handleAddToCart = (item: any) => {
     addToCart(item);
-    Alert.alert('✅ Berhasil', `${item.title} ditambahkan ke keranjang`);
+    Alert.alert(
+      '✅ Berhasil',
+      `${item.title} ditambahkan ke keranjang`,
+      [
+        { text: 'Lanjut Belanja', style: 'cancel' },
+        { 
+          text: 'Checkout', 
+          onPress: () => navigation.navigate('Checkout' as never)
+        },
+      ]
+    );
+  };
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError('');
+    
+    const fetchProducts = async () => {
+      try {
+        const netInfo = await NetInfo.fetch();
+        setConnectionType(netInfo.type || 'unknown');
+
+        if (!netInfo.isInternetReachable) {
+          setError('Anda sedang Offline. Cek koneksi Anda.');
+          setLoading(false);
+          return;
+        }
+
+        const response = await retryRequest(
+          () => apiClient.get('/products', { params: { limit: 20 } }),
+          3
+        );
+
+        setProducts(response.data.products);
+        setError('');
+      } catch (err: any) {
+        console.log('🔴 Error retry manual:', err.message);
+        setError('Gagal memuat produk setelah 3x percobaan');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
   };
 
   if (loading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#FF7043" />
-        <Text style={styles.loadingText}>Memuat produk...</Text>
+        <Text style={styles.loadingText}>Memuat produk dari API...</Text>
       </View>
     );
   }
@@ -84,6 +147,9 @@ export default function ProductListAPIScreen() {
       <View style={styles.center}>
         <Text style={styles.errorIcon}>📡</Text>
         <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
+          <Text style={styles.retryButtonText}>🔄 Coba Lagi Manual</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -110,7 +176,7 @@ export default function ProductListAPIScreen() {
             <View style={styles.imageContainer}>
               <Image source={{ uri: item.thumbnail }} style={styles.image} />
               <View style={styles.ratingBadge}>
-                <Text style={styles.ratingText}>⭐ {item.rating || 4.5}</Text>
+                <Text style={styles.ratingText}>⭐ {item.rating?.toFixed(1) || '4.5'}</Text>
               </View>
             </View>
             <View style={styles.cardBody}>
@@ -149,6 +215,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: '#F5F5F5',
   },
   loadingText: {
     marginTop: 10,
@@ -163,6 +230,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#D32F2F',
     textAlign: 'center',
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: '#FF7043',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   header: {
     backgroundColor: '#FF7043',

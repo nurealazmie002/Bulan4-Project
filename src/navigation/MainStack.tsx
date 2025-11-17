@@ -2,8 +2,9 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TouchableOpacity } from 'react-native';
 import FontAwesome from '@react-native-vector-icons/fontawesome';
-import { DrawerActions } from '@react-navigation/native';  
+import { useNavigation, DrawerActions } from '@react-navigation/native';
 import ButtonTabNavigator from './ButtonTabNavigator';
+import CheckoutScreen from '../screens/CheckoutScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -16,18 +17,40 @@ export default function MainStack() {
         options={({ navigation }) => ({ 
           headerShown: true,
           title: 'Mini E-Commerce App',
-          headerStyle: { backgroundColor: '#FF7043' },
+          headerStyle: { 
+            backgroundColor: '#FF7043',
+          },
           headerTintColor: '#fff',
-          headerTitleStyle: { fontWeight: 'bold' },
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
           headerLeft: () => (
             <TouchableOpacity 
-              onPress={() => navigation.dispatch(DrawerActions.openDrawer())} 
+              onPress={() => {
+                const drawerNav = navigation.getParent();
+                if (drawerNav) {
+                  drawerNav.dispatch(DrawerActions.openDrawer());
+                }
+              }}
               style={{ marginLeft: 15 }}
             >
               <FontAwesome name="bars" size={24} color="#fff" />
             </TouchableOpacity>
           ),
         })} 
+      />
+      <Stack.Screen
+        name="Checkout"
+        component={CheckoutScreen}
+        options={{
+          headerShown: true,
+          title: 'Checkout',
+          headerStyle: { backgroundColor: '#FF7043' },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
       />
     </Stack.Navigator>
   );
