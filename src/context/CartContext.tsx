@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { saveCart, getCart, mergeCartItem } from '../utils/storage';
 
 interface CartItem {
   id: number;
@@ -29,12 +30,31 @@ const CartContext = createContext<CartContextType>({
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
 
+  useEffect(() => {
+    const loadCart = async () => {
+      const savedCart = await getCart();
+      if (savedCart.length > 0) {
+        setCart(savedCart);
+        console.log('✅ Cart loaded from storage:', savedCart.length, 'items');
+      }
+    };
+    loadCart();
+  }, []);
+
+  useEffect(() => {
+    if (cart.length > 0) {
+      saveCart(cart);
+    }
+  }, [cart]);
+
   const addToCart = (item: any) => {
     setCart((prev) => {
       const existingItem = prev.find((i) => i.id === item.id);
       if (existingItem) {
+        const newQuantity = existingItem.quantity + 1;
+        mergeCartItem(item.id.toString(), newQuantity);
         return prev.map((i) =>
-          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+          i.id === item.id ? { ...i, quantity: newQuantity } : i
         );
       }
       return [...prev, { ...item, quantity: 1 }];
@@ -45,8 +65,9 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setCart((prev) => prev.filter((i) => i.id !== id));
   };
 
-  const clearCart = () => {
+  const clearCart = async () => {
     setCart([]);
+    await saveCart([]);
   };
 
   const getTotalPrice = () => {

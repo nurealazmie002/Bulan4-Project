@@ -1,21 +1,46 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   DrawerContentScrollView,
   DrawerItemList,
   DrawerContentComponentProps,
 } from '@react-navigation/drawer';
 import FontAwesome from '@react-native-vector-icons/fontawesome';
+import { useAuth } from '../context/AuthContext';
 
-export default function CustomDrawer(props: DrawerContentComponentProps) {
+interface CustomDrawerProps extends DrawerContentComponentProps {
+  isAuthenticated: boolean;
+}
+
+export default function CustomDrawer(props: CustomDrawerProps) {
+  const { isAuthenticated } = props;
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+  console.log('🔴 Logout started');
+
+  try {
+    props.navigation.closeDrawer();
+
+    await AsyncStorage.multiRemove(['@auth_token', '@user_data', '@cart']);
+    console.log('✅ AsyncStorage cleared');
+
+    logout();
+
+    console.log('✅ Logout success!');
+  } catch (error) {
+    console.error('❌ Logout error:', error);
+  }
+};
+
+
   return (
     <View style={styles.container}>
       <DrawerContentScrollView {...props}>
         <View style={styles.profileCard}>
           <Image
-            source={{
-              uri: 'https://i.pinimg.com/736x/89/3b/8e/893b8e08cca8bbecb2f6e8693b80d72c.jpg',
-            }}
+            source={{ uri: 'https://i.pinimg.com/736x/89/3b/8e/893b8e08cca8bbecb2f6e8693b80d72c.jpg' }}
             style={styles.profileImage}
           />
           <Text style={styles.profileName}>Naufal Hibatullah</Text>
@@ -28,7 +53,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
             </View>
             <View style={styles.infoItem}>
               <FontAwesome name="envelope" size={14} color="#FFE0B2" />
-              <Text style={styles.infoText}>nurealazmie002@gmail.com</Text>
+              <Text style={styles.infoText}>naufal@email.com</Text>
             </View>
           </View>
         </View>
@@ -40,7 +65,15 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
       </DrawerContentScrollView>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Mini E-Commerce App</Text>
+        <TouchableOpacity 
+          style={styles.logoutButton} 
+          onPress={handleLogout}
+          activeOpacity={0.7}
+        >
+          <FontAwesome name="sign-out" size={20} color="#F44336" />
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+        
         <Text style={styles.footerVersion}>Version 1.0.0</Text>
       </View>
     </View>
@@ -118,17 +151,30 @@ const styles = StyleSheet.create({
     padding: 20,
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
-    alignItems: 'center',
     backgroundColor: '#FAFAFA',
   },
-  footerText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#FF7043',
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    backgroundColor: '#FFEBEE',
+    borderRadius: 12,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#FFCDD2',
+  },
+  logoutText: {
+    fontSize: 16,
+    color: '#F44336',
+    marginLeft: 12,
+    fontWeight: 'bold',
   },
   footerVersion: {
     fontSize: 11,
     color: '#9E9E9E',
-    marginTop: 4,
+    textAlign: 'center',
+    marginTop: 5,
   },
 });
