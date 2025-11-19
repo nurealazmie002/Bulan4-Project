@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   DrawerContentScrollView,
   DrawerItemList,
@@ -14,25 +13,18 @@ interface CustomDrawerProps extends DrawerContentComponentProps {
 }
 
 export default function CustomDrawer(props: CustomDrawerProps) {
-  const { isAuthenticated } = props;
   const { logout } = useAuth();
+  const { navigation } = props;
 
   const handleLogout = async () => {
-  console.log('🔴 Logout started');
-
-  try {
-    props.navigation.closeDrawer();
-
-    await AsyncStorage.multiRemove(['@auth_token', '@user_data', '@cart']);
-    console.log('✅ AsyncStorage cleared');
-
-    logout();
-
-    console.log('✅ Logout success!');
-  } catch (error) {
-    console.error('❌ Logout error:', error);
-  }
-};
+    console.log('Logout button pressed');
+    navigation.closeDrawer();
+    
+    setTimeout(async () => {
+      await logout();
+      console.log('Logout complete');
+    }, 300);
+  };
 
 
   return (
@@ -73,18 +65,14 @@ export default function CustomDrawer(props: CustomDrawerProps) {
           <FontAwesome name="sign-out" size={20} color="#F44336" />
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
-        
-        <Text style={styles.footerVersion}>Version 1.0.0</Text>
+        <Text style={styles.footerVersion}>Keychain Protected v1.0</Text>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF',
-  },
+  container: { flex: 1, backgroundColor: '#FFF' },
   profileCard: {
     padding: 20,
     paddingBottom: 25,
@@ -173,8 +161,9 @@ const styles = StyleSheet.create({
   },
   footerVersion: {
     fontSize: 11,
-    color: '#9E9E9E',
+    color: '#4CAF50',
     textAlign: 'center',
     marginTop: 5,
+    fontWeight: 'bold',
   },
 });

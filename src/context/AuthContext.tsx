@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { saveToken, getToken, logout as logoutStorage } from '../utils/storage';
+import { Alert } from 'react-native';
+import { loadAppData, logoutTotal } from '../utils/storage';
+import { saveTokenSecure } from '../utils/keychain';
+import { initApiKey } from '../api/apiClient';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -20,46 +23,70 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const initializeApp = async () => {
       try {
-        const token = await getToken();
-        console.log('🔍 Checking token:', token ? 'Found' : 'Not found');
+        console.log('Initializing app...');
         
-        if (token) {
+        await initApiKey();
+        
+        const appData = await loadAppData();
+        
+        if (appData.token) {
           setIsAuthenticated(true);
-          console.log('✅ User authenticated');
+          console.log('User authenticated from Keychain');
+          console.log('Theme:', appData.theme);
+          console.log('Notifications:', appData.notifications);
         } else {
           setIsAuthenticated(false);
           console.log('❌ User not authenticated');
         }
-      } catch (error) {
-        console.error('Error checking auth:', error);
+      } catch (error: any) {
+        console.error('❌ App initialization error:', error);
+        
+        if (error.message === 'SECURITY_CHANGED') {
+          Alert.alert(
+            'Keamanan Perangkat Diubah',
+            'Mohon login ulang untuk melanjutkan.',
+            [{ text: 'OK' }]
+          );
+        }
+        
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
       }
     };
 
-    checkAuth();
+    initializeApp();
   }, []);
 
   const login = async (token: string) => {
     try {
-      await saveToken(token);
-      setIsAuthenticated(true);
-      console.log('✅ Login successful');
+      console.log('Saving token to Keychain...');
+      const saved = await saveTokenSecure(token);
+      
+      if (saved) {
+        setIsAuthenticated(true);
+        console.log('Login successful');
+      } else {
+        throw new Error('Failed to save token');
+      }
     } catch (error) {
-      console.error('Error during login:', error);
+      console.error('Login error:', error);
+      throw error;
     }
   };
 
   const logout = async () => {
     try {
-      await logoutStorage();
+      console.log('🔴 Logout started...');
+      
+      await logoutTotal();
+      
       setIsAuthenticated(false);
       console.log('✅ Logout successful');
     } catch (error) {
-      console.error('Error during logout:', error);
+      console.error('❌ Logout error:', error);
     }
   };
 
