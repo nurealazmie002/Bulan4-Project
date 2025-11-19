@@ -3,14 +3,13 @@ import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { enableScreens } from 'react-native-screens';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
-
+import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
 import ErrorBoundary from './src/components/ErrorBoundary';
 import OfflineBanner from './src/components/OfflineBanner';
 import MainStack from './src/navigation/MainStack';
 import CustomDrawer from './src/navigation/CustomDrawer';
 import LoginAPIScreen from './src/screens/LoginAPIScreen';
-
+import linking from './src/utils/linking'; 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { UserProvider } from './src/context/UserContext';
 import { CartProvider } from './src/context/CartContext';
@@ -73,7 +72,15 @@ export default function App() {
           <CartProvider>
             <NetworkProvider>
               <SafeAreaProvider>
-                <NavigationContainer>
+                <NavigationContainer 
+                  linking={linking}
+                  fallback={
+                    <View style={styles.loading}>
+                      <ActivityIndicator size="large" color="#FF7043" />
+                      <Text style={styles.loadingText}>Memproses Tautan...</Text>
+                    </View>
+                  }
+                >
                   <OfflineBanner />
                   <AppNavigator />
                 </NavigationContainer>
@@ -93,4 +100,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F5F5F5',
   },
+  loadingText: {
+    marginTop: 10,
+    color: '#666',
+    fontSize: 14,
+  }
 });

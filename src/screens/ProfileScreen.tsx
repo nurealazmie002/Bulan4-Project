@@ -1,9 +1,37 @@
-import React from "react";
-import { View, Text, Image, StyleSheet, ScrollView } from "react-native";
+import React, { useEffect } from "react";
+import { View, Text, Image, StyleSheet, ScrollView, Alert } from "react-native";
 import { useUser } from '../context/UserContext'; 
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 export default function ProfileScreen() {
-  const { userID } = useUser();
+  const { userID, setUserID } = useUser();
+  
+  const navigation = useNavigation();
+  const route = useRoute<any>(); 
+
+  useEffect(() => {
+    if (route.params?.userId) {
+      const incomingUserId = route.params.userId;
+      console.log("🔗 Deep Link Parameter Detected:", incomingUserId);
+
+      const isValid = incomingUserId.toLowerCase() !== 'guest' && incomingUserId.length >= 3;
+
+      if (!isValid) {
+        Alert.alert(
+          "Akses Ditolak",
+          `User ID "${incomingUserId}" tidak valid. ID harus lebih dari 3 karakter.`,
+          [
+            { 
+              text: "Kembali ke Home", 
+              onPress: () => navigation.navigate('Beranda' as never) 
+            }
+          ]
+        );
+      } else {
+        setUserID(incomingUserId);
+      }
+    }
+  }, [route.params?.userId]); 
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

@@ -5,6 +5,7 @@ import FontAwesome from '@react-native-vector-icons/fontawesome';
 import { useNavigation, DrawerActions } from '@react-navigation/native';
 import ButtonTabNavigator from './ButtonTabNavigator';
 import CheckoutScreen from '../screens/CheckoutScreen';
+import ProductDetailScreen from '../screens/ProductDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -45,6 +46,19 @@ export default function MainStack() {
         options={{
           headerShown: true,
           title: 'Checkout',
+          headerStyle: { backgroundColor: '#FF7043' },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      />
+      <Stack.Screen
+        name="ProductDetail"
+        component={ProductDetailScreen}
+        options={{
+          headerShown: true,
+          title: 'Product Detail',
           headerStyle: { backgroundColor: '#FF7043' },
           headerTintColor: '#fff',
           headerTitleStyle: {

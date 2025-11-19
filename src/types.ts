@@ -1,13 +1,17 @@
 export type RootStackParamList = {
+  AppContent: undefined; 
+  
   Home: undefined;
-  Profile: undefined;
-  AppContent: undefined;
   Beranda: undefined;
   Produk: undefined;
+  Cart: undefined; 
+  Profile: { userId?: string };
+  Checkout: undefined;
+  ProductDetail: { productId: string };
 };
-
 export type RootDrawerParamList = {
-  Main: undefined;
+  Main: undefined;      
+  LoginAPI: undefined;  
 };
 
 export interface Product {
