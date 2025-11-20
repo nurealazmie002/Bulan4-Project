@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { saveCart, getCart, mergeCartItem } from '../utils/storage';
+import { saveCart, getCart } from '../utils/storage';
+import Toast from 'react-native-simple-toast';
 
 interface CartItem {
-  id: number;
+  id: number | string; 
   title: string;
   price: number;
   thumbnail: string;
@@ -12,57 +13,64 @@ interface CartItem {
 interface CartContextType {
   cart: CartItem[];
   addToCart: (item: any) => void;
-  removeFromCart: (id: number) => void;
+  removeFromCart: (id: number | string) => void;
   clearCart: () => void;
   getTotalPrice: () => number;
   getTotalItems: () => number;
 }
 
-const CartContext = createContext<CartContextType>({
-  cart: [],
-  addToCart: () => {},
-  removeFromCart: () => {},
-  clearCart: () => {},
-  getTotalPrice: () => 0,
-  getTotalItems: () => 0,
-});
+const CartContext = createContext<CartContextType>({} as any);
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
-    const loadCart = async () => {
+    const loadCartData = async () => {
       const savedCart = await getCart();
-      if (savedCart.length > 0) {
+      if (savedCart && savedCart.length > 0) {
         setCart(savedCart);
-        console.log('✅ Cart loaded from storage:', savedCart.length, 'items');
       }
     };
-    loadCart();
+    loadCartData();
   }, []);
 
   useEffect(() => {
-    if (cart.length > 0) {
-      saveCart(cart);
-    }
+    saveCart(cart);
   }, [cart]);
 
-  const addToCart = (item: any) => {
-    setCart((prev) => {
-      const existingItem = prev.find((i) => i.id === item.id);
-      if (existingItem) {
-        const newQuantity = existingItem.quantity + 1;
-        mergeCartItem(item.id.toString(), newQuantity);
-        return prev.map((i) =>
-          i.id === item.id ? { ...i, quantity: newQuantity } : i
-        );
+  const addToCart = (newItem: any) => {
+    setCart((prevCart) => {
+      const existingItemIndex = prevCart.findIndex(
+        (item) => item.id.toString() === newItem.id.toString()
+      );
+
+      if (existingItemIndex > -1) {
+        const updatedCart = [...prevCart];
+        updatedCart[existingItemIndex] = {
+          ...updatedCart[existingItemIndex],
+          quantity: updatedCart[existingItemIndex].quantity + 1,
+        };
+        return updatedCart;
+      } else {
+        return [
+          ...prevCart,
+          {
+            id: newItem.id,
+            title: newItem.title,
+            price: newItem.price,
+            thumbnail: newItem.thumbnail,
+            quantity: 1, 
+          },
+        ];
       }
-      return [...prev, { ...item, quantity: 1 }];
     });
   };
 
-  const removeFromCart = (id: number) => {
-    setCart((prev) => prev.filter((i) => i.id !== id));
+  const removeFromCart = (targetId: number | string) => {
+    setCart((prevCart) => 
+      prevCart.filter((item) => item.id.toString() !== targetId.toString())
+    );
+    Toast.show('Item dihapus', Toast.SHORT);
   };
 
   const clearCart = async () => {
@@ -80,7 +88,14 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, removeFromCart, clearCart, getTotalPrice, getTotalItems }}
+      value={{
+        cart,
+        addToCart,
+        removeFromCart,
+        clearCart,
+        getTotalPrice,
+        getTotalItems,
+      }}
     >
       {children}
     </CartContext.Provider>

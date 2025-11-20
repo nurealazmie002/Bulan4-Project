@@ -1,15 +1,17 @@
 import React from 'react';
+import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { enableScreens } from 'react-native-screens';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
+import FontAwesome from '@react-native-vector-icons/fontawesome';
 import ErrorBoundary from './src/components/ErrorBoundary';
 import OfflineBanner from './src/components/OfflineBanner';
 import MainStack from './src/navigation/MainStack';
 import CustomDrawer from './src/navigation/CustomDrawer';
 import LoginAPIScreen from './src/screens/LoginAPIScreen';
-import linking from './src/utils/linking'; 
+import FavoriteProductsScreen from './src/screens/FavoriteProductScreen'; 
+import linking from './src/utils/linking';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { UserProvider } from './src/context/UserContext';
 import { CartProvider } from './src/context/CartContext';
@@ -42,6 +44,8 @@ function AppNavigator() {
         headerShown: false,
         swipeEnabled: isAuthenticated,
         drawerStyle: { width: 280 },
+        drawerActiveTintColor: '#FF7043',
+        drawerInactiveTintColor: '#333',
       }}
     >
       {!isAuthenticated ? (
@@ -50,15 +54,36 @@ function AppNavigator() {
           component={LoginAPIScreen}
           options={{
             title: 'Login',
-            drawerItemStyle: { display: 'none' },
+            drawerItemStyle: { display: 'none' }, 
           }}
         />
       ) : (
-        <Drawer.Screen
-          name="Main"
-          component={MainStack}
-          options={{ title: 'Halaman Utama' }}
-        />
+        <>
+          <Drawer.Screen
+            name="Main"
+            component={MainStack}
+            options={{ 
+              title: 'Halaman Utama',
+              drawerIcon: ({ color, size }) => (
+                <FontAwesome name="home" size={size} color={color} />
+              ),
+            }}
+          />
+
+          <Drawer.Screen
+            name="Favorites"
+            component={FavoriteProductsScreen}
+            options={{ 
+              title: 'Produk Favorit',
+              headerShown: true, 
+              headerStyle: { backgroundColor: '#FF7043' },
+              headerTintColor: '#fff',
+              drawerIcon: ({ color, size }) => (
+                <FontAwesome name="heart" size={size} color={color} />
+              ),
+            }}
+          />
+        </>
       )}
     </Drawer.Navigator>
   );
@@ -71,20 +96,20 @@ export default function App() {
         <UserProvider>
           <CartProvider>
             <NetworkProvider>
-              <SafeAreaProvider>
-                <NavigationContainer 
-                  linking={linking}
-                  fallback={
-                    <View style={styles.loading}>
-                      <ActivityIndicator size="large" color="#FF7043" />
-                      <Text style={styles.loadingText}>Memproses Tautan...</Text>
-                    </View>
-                  }
-                >
-                  <OfflineBanner />
-                  <AppNavigator />
-                </NavigationContainer>
-              </SafeAreaProvider>
+                <SafeAreaProvider>
+                  <NavigationContainer 
+                    linking={linking}
+                    fallback={
+                      <View style={styles.loading}>
+                        <ActivityIndicator size="large" color="#FF7043" />
+                        <Text style={styles.loadingText}>Memproses Tautan...</Text>
+                      </View>
+                    }
+                  >
+                    <OfflineBanner />
+                    <AppNavigator />
+                  </NavigationContainer>
+                </SafeAreaProvider>
             </NetworkProvider>
           </CartProvider>
         </UserProvider>

@@ -19,7 +19,7 @@ export default function BerandaScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>⚡ Aksi Cepat</Text>
+        <Text style={styles.sectionTitle}>Aksi Cepat</Text>
         
         <TouchableOpacity 
           style={styles.actionCard}
@@ -58,7 +58,7 @@ export default function BerandaScreen() {
       </View>
 
       <View style={styles.featuresSection}>
-        <Text style={styles.sectionTitle}>✨ Fitur Utama</Text>
+        <Text style={styles.sectionTitle}>Fitur Utama</Text>
         
         <View style={styles.featureCard}>
           <View style={styles.featureIcon}>
@@ -92,7 +92,7 @@ export default function BerandaScreen() {
       </View>
 
       <View style={styles.statsSection}>
-        <Text style={styles.sectionTitle}>📊 Ringkasan</Text>
+        <Text style={styles.sectionTitle}>Ringkasan</Text>
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
             <FontAwesome name="cube" size={28} color="#4CAF50" />

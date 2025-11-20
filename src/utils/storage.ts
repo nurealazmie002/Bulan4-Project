@@ -3,97 +3,106 @@ import { saveTokenSecure, getTokenSecure, resetTokenSecure } from './keychain';
 
 const KEYS = {
   THEME: '@theme',
-  NOTIFICATIONS: '@notifications',
   CART: '@cart',
-  USER: '@user_data',
+  WISHLIST: '@wishlist',
+  WISHLIST_META: '@wishlist_meta',
+  TOKEN_META: '@token_meta', 
+  CACHE_PREFIX: '@cache_prod_',
 };
 
-export const loadAppData = async () => {
+interface CachePayload {
+  value: any;
+  expiry: number;
+}
+
+const safeJsonParse = <T>(jsonString: string | null, fallback: T): T => {
+  if (!jsonString) return fallback;
   try {
-    const [token, theme, notifications] = await Promise.all([
-      getTokenSecure(), 
-      AsyncStorage.getItem(KEYS.THEME), 
-      AsyncStorage.getItem(KEYS.NOTIFICATIONS),
-    ]);
-
-    console.log('📦 App data loaded:', {
-      hasToken: !!token,
-      theme,
-      notifications,
-    });
-
-    return {
-      token,
-      theme: theme || 'light',
-      notifications: notifications || 'enabled',
-    };
-  } catch (error: any) {
-    console.error('❌ Error loading app data:', error);
-    
-    if (error.message === 'SECURITY_CHANGED') {
-      throw error;
-    }
-    
-    return {
-      token: null,
-      theme: 'light',
-      notifications: 'enabled',
-    };
-  }
-};
-
-export const saveTheme = async (theme: string) => {
-  try {
-    await AsyncStorage.setItem(KEYS.THEME, theme);
+    return JSON.parse(jsonString);
   } catch (error) {
-    console.error('Error saving theme:', error);
+    console.error('⚠️ Storage Corrupt Detected. Returning fallback.', error);
+    return fallback;
   }
 };
 
-export const saveCart = async (cart: any[]) => {
-  try {
-    const cartString = JSON.stringify(cart);
-    await AsyncStorage.setItem(KEYS.CART, cartString);
-  } catch (error: any) {
-    console.error('Error saving cart:', error);
-  }
+export const saveTokenMeta = async (expiredAt: number) => {
+  await AsyncStorage.setItem(KEYS.TOKEN_META, JSON.stringify({ expiredAt }));
 };
 
-export const getCart = async (): Promise<any[]> => {
-  try {
-    const cartString = await AsyncStorage.getItem(KEYS.CART);
-    return cartString ? JSON.parse(cartString) : [];
-  } catch (error) {
-    console.error('Error getting cart:', error);
-    return [];
-  }
+export const checkTokenExpiry = async (): Promise<boolean> => {
+  const json = await AsyncStorage.getItem(KEYS.TOKEN_META);
+  const meta = safeJsonParse(json, { expiredAt: 0 });
+  if (meta.expiredAt === 0) return false; 
+  return Date.now() > meta.expiredAt;
 };
 
-export const mergeCartItem = async (itemId: string, quantity: number) => {
-  try {
-    const cartString = await AsyncStorage.getItem(KEYS.CART);
-    const cart = cartString ? JSON.parse(cartString) : [];
-    
-    const existingIndex = cart.findIndex((item: any) => item.id === itemId);
-    if (existingIndex !== -1) {
-      cart[existingIndex].quantity = quantity;
-    }
-    
-    await saveCart(cart);
-  } catch (error) {
-    console.error('Error merging cart item:', error);
+export const saveWishlist = async (ids: string[], count: number) => {
+  const data = JSON.stringify(ids);
+  const meta = JSON.stringify({ count, updatedAt: Date.now() });
+  await AsyncStorage.multiSet([[KEYS.WISHLIST, data], [KEYS.WISHLIST_META, meta]]);
+};
+
+export const getWishlist = async (): Promise<string[]> => {
+  const json = await AsyncStorage.getItem(KEYS.WISHLIST);
+  return safeJsonParse(json, []);
+};
+
+export const cacheProduct = async (id: string, data: any, ttlMs: number = 300000) => {
+  const payload: CachePayload = {
+    value: data,
+    expiry: Date.now() + ttlMs
+  };
+  await AsyncStorage.setItem(`${KEYS.CACHE_PREFIX}${id}`, JSON.stringify(payload));
+};
+
+export const getCachedProduct = async (id: string) => {
+  const cacheKey = `${KEYS.CACHE_PREFIX}${id}`;
+  const json = await AsyncStorage.getItem(cacheKey);
+  
+  const cached = safeJsonParse<CachePayload | null>(json, null);
+
+  if (!cached) return null;
+
+  if (Date.now() > cached.expiry) {
+    console.log(`Cache expired for product ${id}`);
+    AsyncStorage.removeItem(cacheKey); 
+    return null;
   }
+
+  console.log(`Serving from cache: Product ${id}`);
+  return cached.value;
 };
 
 export const logoutTotal = async () => {
   try {
-    const keysToRemove = [KEYS.CART, KEYS.USER];
-    await AsyncStorage.multiRemove(keysToRemove);
-    
+    const keys = await AsyncStorage.getAllKeys();
+    const keysRemove = keys.filter(k => k !== KEYS.THEME);
+    await AsyncStorage.multiRemove(keysRemove);
     await resetTokenSecure();
-    
-    console.log('✅ All secure data cleared');
+    console.log('Storage Cleared');
+  } catch (e) { console.error(e); }
+};
+
+export const loadAppData = async () => {
+  try {
+    const [token, isExpired, cartJson, wishlistJson] = await Promise.all([
+      getTokenSecure(),
+      checkTokenExpiry(),
+      AsyncStorage.getItem(KEYS.CART),
+      AsyncStorage.getItem(KEYS.WISHLIST),
+    ]);
+
+    return {
+      token: isExpired ? null : token,
+      isExpired,
+      cart: safeJsonParse(cartJson, []),
+      wishlist: safeJsonParse(wishlistJson, [])
+    };
   } catch (error) {
-    console.error('❌ Error during logout:', error);
+    console.error('Load failed', error);
+    return { token: null, isExpired: false, cart: [], wishlist: [] };
   }
 };
+
+export const saveCart = async (cart: any) => AsyncStorage.setItem(KEYS.CART, JSON.stringify(cart));
+export const getCart = async () => safeJsonParse(await AsyncStorage.getItem(KEYS.CART), []);
