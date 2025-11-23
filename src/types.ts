@@ -12,6 +12,7 @@ export type RootDrawerParamList = {
   Main: undefined;      
   LoginAPI: undefined;  
   Favorite: undefined;
+  Upload: undefined;
 };
 
 export interface Product {

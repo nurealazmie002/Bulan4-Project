@@ -16,7 +16,7 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { UserProvider } from './src/context/UserContext';
 import { CartProvider } from './src/context/CartContext';
 import { NetworkProvider } from './src/context/NetworkContext';
-
+import UploadScreen from './src/screens/UploadScreen';
 enableScreens();
 
 const Drawer = createDrawerNavigator();
@@ -80,6 +80,19 @@ function AppNavigator() {
               headerTintColor: '#fff',
               drawerIcon: ({ color, size }) => (
                 <FontAwesome name="heart" size={size} color={color} />
+              ),
+            }}
+          />
+          <Drawer.Screen
+            name="Upload"
+            component={UploadScreen}
+            options={{ 
+              title: 'Upload Foto', 
+              headerShown: true,   
+              headerStyle: { backgroundColor: '#FF7043' },
+              headerTintColor: '#fff',
+              drawerIcon: ({ color, size }) => (
+                <FontAwesome name="cloud-upload" size={size} color={color} />
               ),
             }}
           />
