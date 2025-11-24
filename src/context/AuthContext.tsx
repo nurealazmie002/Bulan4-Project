@@ -22,18 +22,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const initializeApp = async () => {
-      await initApiKey();
-      const data = await loadAppData();
+      console.log('[Auth] Mulai Initializing...'); 
+      
+      try {
+        console.log('[Auth] Cek API Key...');
+        await initApiKey();
+        
+        console.log('🚀 [Auth] Load Data Parallel...');
+        const data = await loadAppData();
+        console.log('[Auth] Data Loaded:', data);
 
-      if (data.token) {
-        setIsAuthenticated(true);
-        apiClient.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-      } else {
-        if (data.isExpired) await logoutTotal(); 
-        setIsAuthenticated(false);
+        if (data.token) {
+          console.log('[Auth] Token Ditemukan -> Login');
+          setIsAuthenticated(true);
+          apiClient.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+        } else {
+          console.log('[Auth] Token Tidak Ada -> Logout State');
+          if (data.isExpired) await logoutTotal();
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        console.error('[Auth] Init Error:', error);
+      } finally {
+        console.log(' [Auth] Selesai -> Stop Loading'); 
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
+
     initializeApp();
   }, []);
 
@@ -41,14 +56,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const success = await saveTokenSecure(token);
     if (success) {
       const expiredAt = Date.now() + expiresInMins * 60 * 1000;
-      await saveTokenMeta(expiredAt); 
+      await saveTokenMeta(expiredAt);
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setIsAuthenticated(true);
     }
   };
 
   const logout = async () => {
-    await logoutTotal(); 
+    await logoutTotal();
     delete apiClient.defaults.headers.common['Authorization'];
     setIsAuthenticated(false);
     setPostLoginRedirect(null);
