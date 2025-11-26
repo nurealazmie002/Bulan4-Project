@@ -17,6 +17,7 @@ import { UserProvider } from './src/context/UserContext';
 import { CartProvider } from './src/context/CartContext';
 import { NetworkProvider } from './src/context/NetworkContext';
 import UploadScreen from './src/screens/UploadScreen';
+import StoreLocatorScreen from './src/screens/StoreLocatorScreen';
 enableScreens();
 
 const Drawer = createDrawerNavigator();
@@ -93,6 +94,19 @@ function AppNavigator() {
               headerTintColor: '#fff',
               drawerIcon: ({ color, size }) => (
                 <FontAwesome name="cloud-upload" size={size} color={color} />
+              ),
+            }}
+          />
+          <Drawer.Screen
+            name="StoreLocator"
+            component={StoreLocatorScreen}
+            options={{ 
+              title: 'Lokasi Toko', 
+              headerShown: true,   
+              headerStyle: { backgroundColor: '#FF7043' },
+              headerTintColor: '#fff',
+              drawerIcon: ({ color, size }) => (
+                <FontAwesome name="map-marker" size={size} color={color} />
               ),
             }}
           />
